@@ -14,90 +14,248 @@ api_token = 'CUn5NJ5enSkBQF0vbUIsNCl9NFUCgy7aYsSJqUFG'
 auth = HTTPBasicAuth(f'{email_address}/token', api_token)
 
 
-def fetch_all_tickets(url, auth, headers):
-    all_tickets = []
-    while url:
-        response = requests.get(url, auth=auth, headers=headers)
-        if response.status_code != 200:
-            print(f"Falha na solicitação: {response.status_code}")
-            print(f"Mensagem de erro: {response.text}")
-            break
-        data = response.json()
-        all_tickets.extend(data.get('tickets', []))
-        url = data.get('links', {}).get('next')
-        print(f"Próxima página: {url}")
-    return all_tickets
+def job():
+    def create_connection(driver, server, database, user, password, port):
+        connection = None
+        try:
+            connection = pyodbc.connect(
+                f'DRIVER={{{driver}}};'
+                f'SERVER={server},{port};'
+                f'DATABASE={database};'
+                f'UID={user};'
+                f'PWD={password}'
+            )
+            print("Connection to SQL Server successful")
+        except pyodbc.Error as e:
+            print(f"The error '{e}' occurred")
+
+        return connection
+
+    def truncate_table(connection):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("TRUNCATE TABLE BD_RECEBIVEIS_SEMANAL")
+                connection.commit()
+                print("Tabela foi truncada com sucesso.")
+        except pyodbc.Error as e:
+            print(f"O erro foi: {e}")
+
+    def insert_data(connection, Area_retorno, Data_de_envio_Area_responsavel, Previsao_de_retorno_Area_responsavel,
+                    Assunto_do_Email, Canal_de_Entrada, Duvida, Solicitacao, Problema, Outros, Transportadora, Produto,
+                    Numero_do_Pedido, SKU_dos_produtos, Numero_da_NF, Estorno_valor, Tipo_de_estorno, Atendente,
+                    Nome_Titular_do_Pedido, Estorno_causa_raiz, Estorno_tipo_de_problema, Estorno_tipo_de_pagamento,
+                    Status_da_coleta, CD_Troca, Coleta_mais_de_uma_vez, Caso_foi_resolvido, Numero_da_Loja,
+                    CD_Outras_demandas, Replica, Sentimento, Status_de_assistencia_tecnica, Plano_OS_vencidas, cobranca,
+                    CD_Devolucao, Loja_Fisica_ou_Virtual, Etapas_de_coleta, Avaliacao, Nota_da_avaliacao, Demanda,
+                    Plano_acao, Numero_da_OS, Cliente_Reincidente, Numero_NFD, Assunto, Descricao, Grupo,
+                    Atribuido_para, Status):
+        cursor = connection.cursor()
+        insert_query = """
+        INSERT INTO BD_SAC (
+            Area_retorno, 
+            Data_de_envio_Area_responsável, 
+            Previsao_de_retorno_Area_responsavel, 
+            Assunto_do_Email, 
+            Canal_de_Entrada, 
+            Duvida, 
+            Solicitacao, 
+            Problema, 
+            Outros, 
+            Transportadora, 
+            Produto, 
+            Numero_do_Pedido, 
+            SKU_dos_produtos, 
+            Numero_da_NF, 
+            Estorno_valor, 
+            Tipo_de_estorno, 
+            Atendente, 
+            Nome_Titular_do_Pedido, 
+            Estorno_causa_raiz, 
+            Estorno_tipo_de_problema, 
+            Estorno_tipo_de_pagamento, 
+            Status_da_coleta, 
+            CD_Troca, 
+            Coleta_mais_de_uma_vez, 
+            Caso_foi_resolvido, 
+            Numero_da_Loja, 
+            CD_Outras_demandas, 
+            Replica, 
+            Sentimento, 
+            Status_de_assistencia_tecnica, 
+            Plano_OS_vencidas, 
+            cobranca, 
+            CD_Devolucao, 
+            Loja_Fisica_ou_Virtual, 
+            Etapas_de_coleta, 
+            Avaliacao, 
+            Nota_da_avaliacao, 
+            Demanda, 
+            Plano_acao, 
+            Numero_da_OS, 
+            Cliente_Reincidente, 
+            Numero_NFD, 
+            Assunto, 
+            Descricao, 
+            Grupo, 
+            Atribuido_para, 
+            Status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        cursor.execute(insert_query, (
+            Area_retorno,
+            Data_de_envio_Area_responsavel,
+            Previsao_de_retorno_Area_responsavel,
+            Assunto_do_Email,
+            Canal_de_Entrada,
+            Duvida,
+            Solicitacao,
+            Problema,
+            Outros,
+            Transportadora,
+            Produto,
+            Numero_do_Pedido,
+            SKU_dos_produtos,
+            Numero_da_NF,
+            Estorno_valor,
+            Tipo_de_estorno,
+            Atendente,
+            Nome_Titular_do_Pedido,
+            Estorno_causa_raiz,
+            Estorno_tipo_de_problema,
+            Estorno_tipo_de_pagamento,
+            Status_da_coleta,
+            CD_Troca,
+            Coleta_mais_de_uma_vez,
+            Caso_foi_resolvido,
+            Numero_da_Loja,
+            CD_Outras_demandas,
+            Replica,
+            Sentimento,
+            Status_de_assistencia_tecnica,
+            Plano_OS_vencidas,
+            cobranca,
+            CD_Devolucao,
+            Loja_Fisica_ou_Virtual,
+            Etapas_de_coleta,
+            Avaliacao,
+            Nota_da_avaliacao,
+            Demanda,
+            Plano_acao,
+            Numero_da_OS,
+            Cliente_Reincidente,
+            Numero_NFD,
+            Assunto,
+            Descricao,
+            Grupo,
+            Atribuido_para,
+            Status
+        ))
+        connection.commit()
+
+    driver = "ODBC Driver 17 for SQL Server"
+    server = "187.0.198.167"
+    user = "victor.oliveira"
+    password = "@primo01"
+    database = "DADOS_EXCEL"
+    port = 41433
+
+    connection = create_connection(driver, server, database, user, password, port)
+
+    if connection:
+        print("Código está correto e a conexão foi estabelecida com sucesso.")
+    else:
+        print("Código está correto, mas não foi possível estabelecer a conexão.")
+
+    def fetch_all_tickets(url, auth, headers):
+        all_tickets = []
+        while url:
+            response = requests.get(url, auth=auth, headers=headers)
+            if response.status_code != 200:
+                print(f"Falha na solicitação: {response.status_code}")
+                print(f"Mensagem de erro: {response.text}")
+                break
+            data = response.json()
+            all_tickets.extend(data.get('tickets', []))
+            url = data.get('links', {}).get('next')
+            print(f"Próxima página: {url}")
+        return all_tickets
+
+    # IDs dos campos padrão que você mencionou
+    standard_field_ids = {
+        '22333195': 'Assunto',
+        '22333205': 'Descrição',
+        '22333245': 'Grupo',
+        '22333255': 'Atribuido para',
+        '9647033755156': 'Status'
+    }
+
+    custom_field_ids = [
+        '20481751634964',  # Área retorno
+        '23450471389460',  # Data de envio Área responsável
+        '23450335909780',  # Previsão de retorno Área responsável
+        '7896616478612',  # Assunto do Email
+        '360041469032',  # Canal de Entrada
+        '360041468692',  # Dúvida
+        '360041432051',  # Solicitação
+        '360041431951',  # Problema
+        '360041432091',  # Outros
+        '22541325',  # Transportadora
+        '8225162131348',  # Produto
+        '360041040172',  # Número do Pedido
+        '360030577731',  # SKU dos produtos
+        '360040274491',  # Número da NF
+        '23507539076884',  # Estorno: valor
+        '23465090667540',  # Tipo de estorno
+        '24157626991892',  # Atendente
+        '360030496932',  # Nome Titular do Pedido
+        '23555735385236',  # Estorno: causa raiz
+        '23555716189844',  # Estorno: tipo de problema
+        '25219880343316',  # Estorno: tipo de pagamento
+        '27112346684948',  # Status da coleta
+        '25783014985492',  # CD: Troca e Acionamento de Garantia
+        '27112338364436',  # Coleta foi solicitada mais de uma vez?
+        '27265259806228',  # O caso foi 100% resolvido no atendimento anterior?
+        '26678660208916',  # Número da Loja
+        '25907732988436',  # CD: Outras demandas
+        '27112064079636',  # Réplica?
+        '28405635340308',  # Sentimento
+        '26241507056916',  # Status de assistência técnica
+        '26256563363348',  # Plano de ação OS vencidas
+        '26241374621588',  # Prazo 1ª cobrança
+        '25808063108756',  # CD: Devolução e Voucher
+        '27112048306068',  # Loja Física ou Loja Virtual
+        '25780172368020',  # Etapas de coleta
+        '27112103294868',  # Avaliação no RA?
+        '27112199178132',  # Nota da avaliação
+        '25820195084948',  # Demanda
+        '26256620215444',  # Plano de ação insatisfação resultado de OS
+        '25966692319380',  # Número da OS
+        '27265194513556',  # Cliente Reincidente?
+        '25427606175380'  # Número da NFD
+    ]
+
+    tickets_data = fetch_all_tickets(url, auth, headers)
+
+    filtered_data = []
+
+    for ticket in tickets_data:
+        filtered_fields = {field['id']: field['value'] for field in ticket['custom_fields'] if
+                           str(field['id']) in custom_field_ids}
+
+        # Adiciona os campos padrão ao dicionário
+        for field_id, field_name in standard_field_ids.items():
+            filtered_fields[field_name] = ticket.get('fields', {}).get(field_id)
+
+        filtered_data.append(filtered_fields)
+
+    df = pd.DataFrame(filtered_data)
+    '3'
+    schedule.every().day.at("12:10").do(job)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(0.5)
 
 
-# IDs dos campos padrão que você mencionou
-standard_field_ids = {
-    '22333195': 'Assunto',
-    '22333205': 'Descrição',
-    '22333245': 'Grupo',
-    '22333255': 'Atribuido para',
-    '9647033755156': 'Status'
-}
-
-custom_field_ids = [
-    '20481751634964',  # Área retorno
-    '23450471389460',  # Data de envio Área responsável
-    '23450335909780',  # Previsão de retorno Área responsável
-    '7896616478612',  # Assunto do Email
-    '360041469032',  # Canal de Entrada
-    '360041468692',  # Dúvida
-    '360041432051',  # Solicitação
-    '360041431951',  # Problema
-    '360041432091',  # Outros
-    '22541325',  # Transportadora
-    '8225162131348',  # Produto
-    '360041040172',  # Número do Pedido
-    '360030577731',  # SKU dos produtos
-    '360040274491',  # Número da NF
-    '23507539076884',  # Estorno: valor
-    '23465090667540',  # Tipo de estorno
-    '24157626991892',  # Atendente
-    '360030496932',  # Nome Titular do Pedido
-    '23555735385236',  # Estorno: causa raiz
-    '23555716189844',  # Estorno: tipo de problema
-    '25219880343316',  # Estorno: tipo de pagamento
-    '27112346684948',  # Status da coleta
-    '25783014985492',  # CD: Troca e Acionamento de Garantia
-    '27112338364436',  # Coleta foi solicitada mais de uma vez?
-    '27265259806228',  # O caso foi 100% resolvido no atendimento anterior?
-    '26678660208916',  # Número da Loja
-    '25907732988436',  # CD: Outras demandas
-    '27112064079636',  # Réplica?
-    '28405635340308',  # Sentimento
-    '26241507056916',  # Status de assistência técnica
-    '26256563363348',  # Plano de ação OS vencidas
-    '26241374621588',  # Prazo 1ª cobrança
-    '25808063108756',  # CD: Devolução e Voucher
-    '27112048306068',  # Loja Física ou Loja Virtual
-    '25780172368020',  # Etapas de coleta
-    '27112103294868',  # Avaliação no RA?
-    '27112199178132',  # Nota da avaliação
-    '25820195084948',  # Demanda
-    '26256620215444',  # Plano de ação insatisfação resultado de OS
-    '25966692319380',  # Número da OS
-    '27265194513556',  # Cliente Reincidente?
-    '25427606175380'  # Número da NFD
-]
-
-tickets_data = fetch_all_tickets(url, auth, headers)
-
-filtered_data = []
-
-for ticket in tickets_data:
-    filtered_fields = {field['id']: field['value'] for field in ticket['custom_fields'] if
-                       str(field['id']) in custom_field_ids}
-
-    # Adiciona os campos padrão ao dicionário
-    for field_id, field_name in standard_field_ids.items():
-        filtered_fields[field_name] = ticket.get('fields', {}).get(field_id)
-
-    filtered_data.append(filtered_fields)
-
-df = pd.DataFrame(filtered_data)
-'3'
-
-print(df)
+if __name__ == "__main__":
+    job()

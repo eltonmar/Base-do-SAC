@@ -90,7 +90,7 @@ def create_connection(driver, server, database, user, password, port):
 def truncate_table(connection):
     try:
         with connection.cursor() as cursor:
-            cursor.execute("TRUNCATE TABLE BD_SAC")
+            cursor.execute("TRUNCATE TABLE BD_RECEBIVEIS_SEMANAL")
             connection.commit()
             print("Tabela foi truncada com sucesso.")
     except pyodbc.Error as e:
@@ -113,19 +113,18 @@ def insert_data(connection, data_row):
     cursor = connection.cursor()
     cursor.execute(insert_query, data_row)
     connection.commit()
-def fetch_all_tickets(url, auth, headers):
-    all_tickets = []
-    while url:
-        response = requests.get(url, auth=auth, headers=headers)
-        if response.status_code != 200:
-            print(f"Falha na solicitação: {response.status_code}")
-            print(f"Mensagem de erro: {response.text}")
-            break
-        data = response.json()
-        all_tickets.extend(data.get('tickets', []))
-        url = data.get('links', {}).get('next')
-        print(f"Próxima página: {url}")
-    return all_tickets
+
+
+def fetch_first_page_tickets(url, auth, headers):
+    response = requests.get(url, auth=auth, headers=headers)
+    if response.status_code != 200:
+        print(f"Falha na solicitação: {response.status_code}")
+        print(f"Mensagem de erro: {response.text}")
+        return []
+
+    data = response.json()
+    tickets = data.get('tickets', [])
+    return tickets
 
 def job():
     connection = create_connection(driver, server, database, user, password, port)
@@ -135,7 +134,7 @@ def job():
 
     truncate_table(connection)
 
-    tickets_data = fetch_all_tickets(url, auth, headers)
+    tickets_data = fetch_first_page_tickets(url, auth, headers)
 
     for ticket in tickets_data:
         filtered_fields = {field['id']: field['value'] for field in ticket['custom_fields'] if
@@ -199,7 +198,7 @@ def job():
     connection.close()
 
 # Agenda o job para rodar diariamente
-schedule.every().day.at("16:21").do(job)
+schedule.every().day.at("16:22").do(job)
 
 # Loop para manter o schedule rodando
 while True:

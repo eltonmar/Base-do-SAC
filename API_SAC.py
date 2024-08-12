@@ -31,21 +31,21 @@ custom_field_ids = [
     '20481751634964',  # Área retorno
     '23450471389460',  # Data de envio Área responsável
     '23450335909780',  # Previsão de retorno Área responsável
-    '7896616478612',   # Assunto do Email
-    '360041469032',    # Canal de Entrada
-    '360041468692',    # Dúvida
-    '360041432051',    # Solicitação
-    '360041431951',    # Problema
-    '360041432091',    # Outros
-    '22541325',        # Transportadora
-    '8225162131348',   # Produto
-    '360041040172',    # Número do Pedido
-    '360030577731',    # SKU dos produtos
-    '360040274491',    # Número da NF
+    '7896616478612',  # Assunto do Email
+    '360041469032',  # Canal de Entrada
+    '360041468692',  # Dúvida
+    '360041432051',  # Solicitação
+    '360041431951',  # Problema
+    '360041432091',  # Outros
+    '22541325',  # Transportadora
+    '8225162131348',  # Produto
+    '360041040172',  # Número do Pedido
+    '360030577731',  # SKU dos produtos
+    '360040274491',  # Número da NF
     '23507539076884',  # Estorno: valor
     '23465090667540',  # Tipo de estorno
     '24157626991892',  # Atendente
-    '360030496932',    # Nome Titular do Pedido
+    '360030496932',  # Nome Titular do Pedido
     '23555735385236',  # Estorno: causa raiz
     '23555716189844',  # Estorno: tipo de problema
     '25219880343316',  # Estorno: tipo de pagamento
@@ -69,8 +69,9 @@ custom_field_ids = [
     '26256620215444',  # Plano de ação insatisfação resultado de OS
     '25966692319380',  # Número da OS
     '27265194513556',  # Cliente Reincidente?
-    '25427606175380'   # Número da NFD
+    '25427606175380'  # Número da NFD
 ]
+
 
 def create_connection(driver, server, database, user, password, port):
     connection = None
@@ -87,6 +88,7 @@ def create_connection(driver, server, database, user, password, port):
         print(f"The error '{e}' occurred")
     return connection
 
+
 def truncate_table(connection):
     try:
         with connection.cursor() as cursor:
@@ -96,23 +98,27 @@ def truncate_table(connection):
     except pyodbc.Error as e:
         print(f"O erro foi: {e}")
 
+
 def insert_data(connection, data_row):
     insert_query = """
     INSERT INTO BD_SAC (
-    Area_retorno, Data_de_envio_Area_responsável, Previsao_de_retorno_Area_responsavel, Assunto_do_Email, 
-    Canal_de_Entrada, Duvida, Solicitacao, Problema, Outros, Transportadora, Produto, Numero_do_Pedido, 
-    SKU_dos_produtos, Numero_da_NF, "Estorno:valor", Tipo_de_estorno, Atendente, Nome_Titular_do_Pedido, 
-    "Estorno:causa_raiz", "Estorno:tipo_de_problema", "Estorno:tipo_de_pagamento", Status_da_coleta, 
-    "CD:Troca", Coleta_mais_de_uma_vez, Caso_foi_resolvido, Numero_da_Loja, "CD:Outras_demandas", 
-    "Replica?", Sentimento, Status_de_assistencia_tecnica, Plano_OS_vencidas, "1_cobranca", "CD:Devolucao", 
-    Loja_Fisica_ou_Virtual, Etapas_de_coleta, Avaliacao, Nota_da_avaliacao, Demanda, Plano_ação, 
-    Número_da_OS, Cliente_Reincidente, Número_NFD, Assunto, Descricao, Grupo, Atribuido_para, Status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    Area_retorno,	Data_de_envio_Area_responsável,	Previsao_de_retorno_Area_responsavel,	Assunto_do_Email,
+    Canal_de_Entrada, Duvida, Solicitacao, Problema, Outros, Transportadora, Produto, Numero_do_Pedido, SKU_dos_produtos,
+    Numero_da_NF, Estorno_valor,	Tipo_de_estorno,	Atendente,	Nome_Titular_do_Pedido,	Estorno_causa_raiz,	
+    Estorno_tipo_de_problema,	Estorno_tipo_de_pagamento,	Status_da_coleta,	CD_Troca,	Coleta_mais_de_uma_vez,	
+    Caso_foi_resolvido,	Numero_da_Loja,	CD_Outras_demandas,	Replica?,	Sentimento,	Status_de_assistencia_tecnica,	
+    Plano_OS_vencidas,	1_cobranca,	CD_Devolucao,	Loja_Fisica_ou_Virtual,	Etapas_de_coleta,	Avaliacao,	
+    Nota_da_avaliacao,	Demanda,	Plano_ação,	Número_da_OS,	Cliente_Reincidente,	Número_NFD,	Assunto,	
+    Descricao,	Grupo,	Atribuido_para,	Status
+    ) VALUES (?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	
+    ?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?,	?
+    )
     """
     cursor = connection.cursor()
     cursor.execute(insert_query, data_row)
     connection.commit()
+
+
 def fetch_all_tickets(url, auth, headers):
     all_tickets = []
     while url:
@@ -126,6 +132,7 @@ def fetch_all_tickets(url, auth, headers):
         url = data.get('links', {}).get('next')
         print(f"Próxima página: {url}")
     return all_tickets
+
 
 def job():
     connection = create_connection(driver, server, database, user, password, port)
@@ -198,8 +205,9 @@ def job():
 
     connection.close()
 
+
 # Agenda o job para rodar diariamente
-schedule.every().day.at("16:21").do(job)
+schedule.every().day.at("16:52").do(job)
 
 # Loop para manter o schedule rodando
 while True:
